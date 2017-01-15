@@ -1,0 +1,7 @@
+{
+    "name": "code-pilots_test-task",
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=5.5.0"
+    }
+}
