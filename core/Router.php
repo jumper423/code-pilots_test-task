@@ -8,8 +8,8 @@ class Router
         $uri = $_SERVER['REQUEST_URI'];
 
         $result = [];
-        $result['controller'] = explode($uri, '/')[0];
-        $result['action'] = explode($uri, '/')[1];
+        $result['controller'] = explode('/', $uri)[1];
+        $result['action'] = explode('/', $uri)[2];
         $result['params'] = $_POST;
 
         return $result;
@@ -18,7 +18,8 @@ class Router
     public function callAction() {
         $url = $this->urlParsing();
         $name = ucfirst($url['controller']);
-        $obj = new ('\controllers\/'.$name.'Controller')();
+        $test = '\controllers\\'.$name.'Controller';
+        $obj = new $test();
 
         return $obj->{lcfirst($url['action']).'Action'}($url['params']);
     }
