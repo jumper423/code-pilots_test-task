@@ -50,4 +50,30 @@ class DataBase
         $stmt->execute();
         return $stmt->fetch(\PDO::FETCH_LAZY);
     }
+
+    public function columnValue($string)
+    {
+        $stmt = $this->db->prepare($string);
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
+    public function rows($string)
+    {
+        $stmt = $this->db->prepare($string);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function bringing(&$rows){
+        foreach ($rows as &$value) {
+            if (is_array($value)) {
+                $this->bringing($value);
+            } else {
+                if (is_numeric($value)) {
+                    $value = (int)$value;
+                }
+            }
+        }
+    }
 }

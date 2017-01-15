@@ -5,7 +5,7 @@ namespace core;
 class Router
 {
     public function urlParsing() {
-        $uri = $_SERVER['REQUEST_URI'];
+        $uri = explode('?', $_SERVER['REQUEST_URI'])[0];
 
         $result = [];
         $result['controller'] = explode('/', $uri)[1];
