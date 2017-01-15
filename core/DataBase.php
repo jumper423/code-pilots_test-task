@@ -76,4 +76,24 @@ class DataBase
             }
         }
     }
+
+    public function joining($rows, $key, $joinRows, $joinKey, $arrayKey){
+        if (!$joinRows) {
+            return $rows;
+        }
+        $sessions = [];
+        foreach ($rows as $row) {
+            $sessions[$row[$key]] = $row;
+        }
+        foreach ($joinRows as $joinRow) {
+            $sessionId = $joinRow[$joinKey];
+            unset($joinRow[$joinKey]);
+            if (!isset($sessions[$sessionId][$arrayKey])) {
+                $sessions[$sessionId][$arrayKey] = [];
+            }
+            $this->bringing($joinRow);
+            $sessions[$sessionId][$arrayKey][] = $joinRow;
+        }
+        return array_values($sessions);
+    }
 }
