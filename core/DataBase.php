@@ -44,11 +44,6 @@ class DataBase
         $this->db = $db;
     }
 
-    public function query($string)
-    {
-        return $this->db->query($string);
-    }
-
     public function begin()
     {
         return $this->db->beginTransaction();
@@ -63,24 +58,45 @@ class DataBase
     {
         return $this->db->rollBack();
     }
+    
+    public function setParams(&$stmt, $params) 
+    {
+        foreach($param as $key => $value) {
+            if (is_array($value)) {
+                $stmt->bindParam(":$key", $value[0], $value[1]);
+            } else {
+                $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
+            }
+        }
+    }
 
-    public function row($string)
+    public function query($string, $params = [])
+    {
+        $this->db->prepare($string);
+        $this->setParams($stmt, $params);
+        $sth->execute();
+    }
+
+    public function row($string, $params = [])
     {
         $stmt = $this->db->prepare($string);
+        $this->setParams($stmt, $params);
         $stmt->execute();
         return $stmt->fetch(\PDO::FETCH_LAZY);
     }
 
-    public function columnValue($string)
+    public function columnValue($string, $params = [])
     {
         $stmt = $this->db->prepare($string);
+        $this->setParams($stmt, $params);
         $stmt->execute();
         return $stmt->fetchColumn();
     }
 
-    public function rows($string)
+    public function rows($string, $params = [])
     {
         $stmt = $this->db->prepare($string);
+        $this->setParams($stmt, $params);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
