@@ -42,4 +42,6 @@ PRIMARY KEY (`SessionID`, `UserID`)
 
 INSERT INTO `SessionSubscribe` (`SessionID`, `UserID`) VALUES ('1', '1');
 
+ALTER TABLE News
+ADD UNIQUE INDEX NewsUnique (ParticipantId, NewsTitle, NewsMessage) USING BTREE ;
 ```

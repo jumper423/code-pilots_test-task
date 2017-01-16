@@ -51,7 +51,7 @@ class ApiController extends BaseController
 
     public function postNewsAction($params)
     {
-        $userEmail = isset($params['userEmail']) ? (int)$params['userEmail'] : false;
+        $userEmail = isset($params['userEmail']) ? $params['userEmail'] : false;
         $newsTitle = isset($params['newsTitle']) ? $params['newsTitle'] : false;
         $newsMessage = isset($params['newsMessage']) ? $params['newsMessage'] : false;
 
@@ -62,14 +62,18 @@ class ApiController extends BaseController
             return;
         }
 
-        $isDuplicate = !!DataBase::i()->columnValue("SELECT COUNT(*) FROM News WHERE ParticipantId = '$userId' AND NewsTitle = '$newsTitle' AND NewsMessage = '$newsMessage'");
+        DataBase::i()->query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
+        DataBase::i()->begin();
+        $isDuplicate = !DataBase::i()->columnValue("SELECT COUNT(*) FROM News WHERE ParticipantId = '$userId' AND NewsTitle = '$newsTitle' AND NewsMessage = '$newsMessage'");
 
         if(!$isDuplicate) {
+            DataBase::i()->rollback();
             $this->response(false, [], 'Такая новость уже вами добавлена');
             return;
         }
 
-        DataBase::i()->query("INSERT INTO `News` (`ParticipantId`, `NewsTitle`, `NewsMessage`) VALUES ($userId, $newsTitle, $newsMessage)");
+        DataBase::i()->query("INSERT INTO News (ParticipantId, NewsTitle, NewsMessage) VALUES ($userId, '$newsTitle', '$newsMessage')");
+        DataBase::i()->commit();
         $this->response(true, [], "Спасибо, вы успешно записаны!");
     }
 }
