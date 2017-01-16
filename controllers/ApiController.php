@@ -36,7 +36,7 @@ class ApiController extends BaseController
             return;
         }
 
-        DataBase::i()->query("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
+        DataBase::i()->query("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
         DataBase::i()->begin();
         DataBase::i()->query("INSERT INTO `SessionSubscribe` (`SessionID`, `UserID`) VALUES ($sessionId, $userId) ON DUPLICATE KEY UPDATE UserID = $userId");
         if(DataBase::i()->columnValue("SELECT COUNT(*) FROM SessionSubscribe WHERE SessionID = $sessionId") <= DataBase::i()->columnValue("SELECT NumberOfSeats FROM Session WHERE ID = $sessionId")) {
@@ -49,8 +49,27 @@ class ApiController extends BaseController
 
     }
 
-    public function postNewsAction()
+    public function postNewsAction($params)
     {
+        $userEmail = isset($params['userEmail']) ? (int)$params['userEmail'] : false;
+        $newsTitle = isset($params['newsTitle']) ? $params['newsTitle'] : false;
+        $newsMessage = isset($params['newsMessage']) ? $params['newsMessage'] : false;
 
+        $userId = DataBase::i()->columnValue("SELECT ID FROM Users WHERE Email = '$userEmail'");
+
+        if(!$userId) {
+            $this->response(false, [], 'Такого пользователя не существует');
+            return;
+        }
+
+        $isDuplicate = !!DataBase::i()->columnValue("SELECT COUNT(*) FROM News WHERE ParticipantId = '$userId' AND NewsTitle = '$newsTitle' AND NewsMessage = '$newsMessage'");
+
+        if(!$isDuplicate) {
+            $this->response(false, [], 'Такая новость уже вами добавлена');
+            return;
+        }
+
+        DataBase::i()->query("INSERT INTO `News` (`ParticipantId`, `NewsTitle`, `NewsMessage`) VALUES ($userId, $newsTitle, $newsMessage)");
+        $this->response(true, [], "Спасибо, вы успешно записаны!");
     }
 }
