@@ -44,6 +44,26 @@ class DataBase
         $this->db = $db;
     }
 
+    public function query($string)
+    {
+        return $this->db->query($string);
+    }
+
+    public function begin()
+    {
+        return $this->db->beginTransaction();
+    }
+
+    public function commit()
+    {
+        return $this->db->commit();
+    }
+
+    public function rollback()
+    {
+        return $this->db->rollBack();
+    }
+
     public function row($string)
     {
         $stmt = $this->db->prepare($string);
